@@ -70,17 +70,6 @@ const InvoiceActions = () => {
      */
     const secondaryActions = (
         <div className="flex flex-col gap-1">
-            <InvoiceLoaderModal>
-                <BaseButton
-                    variant="ghost"
-                    className="w-full justify-start"
-                    disabled={invoicePdfLoading}
-                >
-                    <FolderUp className="h-4 w-4" />
-                    {_t("actions.loadInvoice")}
-                </BaseButton>
-            </InvoiceLoaderModal>
-
             <InvoiceExportModal>
                 <BaseButton
                     variant="ghost"
@@ -174,6 +163,17 @@ const InvoiceActions = () => {
                                 <Minimize2 className="h-4 w-4" />
                             )}
                         </BaseButton>
+
+                        <InvoiceLoaderModal>
+                            <BaseButton
+                                variant="outline"
+                                tooltipLabel="View Invoice History"
+                                disabled={invoicePdfLoading}
+                            >
+                                <FolderUp className="h-4 w-4" />
+                                History
+                            </BaseButton>
+                        </InvoiceLoaderModal>
 
                         <Popover>
                             <PopoverTrigger asChild>
