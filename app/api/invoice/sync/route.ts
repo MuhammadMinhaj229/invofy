@@ -109,24 +109,18 @@ export async function POST(req: Request) {
         ? (data.details.invoiceDate as any).toISOString().split("T")[0]
         : (data.details.invoiceDate || new Date().toISOString().split("T")[0]);
 
-    // Create a structured note text for the invoice
-    let noteText = `[INVOICE]
-Number: ${data.details.invoiceNumber}
-Date: ${invoiceDate}
-Total: ${data.details.totalAmount} ${data.details.currency}
-Service: ${serviceCode}`;
-
-    if (data.details.items && data.details.items.length > 0) {
-      const itemsList = data.details.items.map((item: any) => `- ${item.name} (x${item.quantity}) = ${item.total}`).join('\n');
-      noteText += `\nItems:\n` + itemsList;
-    }
-
-    // Push the note to contact_notes
-    const { data: inserted, error } = await supabase.from("contact_notes").insert({
+    // Insert structured data into the invoices table
+    const { data: inserted, error } = await supabase.from("invoices").insert({
       contact_id: contactId,
       account_id: contactData.account_id,
       user_id: contactData.user_id,
-      note_text: noteText
+      invoice_number: data.details.invoiceNumber || 'MANUAL',
+      invoice_date: invoiceDate,
+      total_amount: parseFloat(data.details.totalAmount || "0"),
+      currency: data.details.currency || 'INR',
+      service_code: serviceCode || 'Custom Service',
+      line_items: data.details.items || [],
+      status: 'PAID'
     }).select("id").single();
 
     if (error) {
