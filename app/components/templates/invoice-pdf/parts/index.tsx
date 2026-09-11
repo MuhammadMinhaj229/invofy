@@ -448,6 +448,15 @@ export function PaymentBlock({ ctx }: { ctx: PartCtx }) {
                     </p>
                 )}
             </div>
+            {pay?.qrCode && (
+                <div className="mt-3">
+                    <img
+                        src={pay.qrCode}
+                        alt="Payment QR Code"
+                        className="h-24 w-24 object-contain"
+                    />
+                </div>
+            )}
         </div>
     );
 }

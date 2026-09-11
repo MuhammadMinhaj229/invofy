@@ -554,6 +554,9 @@ video {
 .h-1 {
   height: 0.25rem;
 }
+.h-24 {
+  height: 6rem;
+}
 .min-h-\[30rem\] {
   min-height: 30rem;
 }
@@ -562,6 +565,9 @@ video {
 }
 .w-2 {
   width: 0.5rem;
+}
+.w-24 {
+  width: 6rem;
 }
 .w-full {
   width: 100%;
@@ -709,6 +715,9 @@ video {
 .bg-white {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+.object-contain {
+  object-fit: contain;
 }
 .p-4 {
   padding: 1rem;

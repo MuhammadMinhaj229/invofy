@@ -67,7 +67,7 @@ function isAlive(browser: Browser): boolean {
  * A browser that has crashed or been killed externally is discarded and
  * replaced rather than handed out in a dead state.
  */
-export async function getBrowser(): Promise<Browser> {
+export async function getBrowser(retries = 1): Promise<Browser> {
     if (browserPromise) {
         try {
             const existing = await browserPromise;
@@ -86,13 +86,21 @@ export async function getBrowser(): Promise<Browser> {
         throw error;
     });
 
-    const browser = await browserPromise;
+    try {
+        const browser = await browserPromise;
 
-    browser.once("disconnected", () => {
-        browserPromise = null;
-    });
+        browser.once("disconnected", () => {
+            browserPromise = null;
+        });
 
-    return browser;
+        return browser;
+    } catch (error) {
+        if (retries > 0) {
+            console.warn("[Invoify] Browser launch failed, retrying...", error);
+            return getBrowser(retries - 1);
+        }
+        throw error;
+    }
 }
 
 /** Closes the shared browser. Used on shutdown and by tests. */

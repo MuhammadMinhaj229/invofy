@@ -1,7 +1,7 @@
 "use client";
 
 // Components
-import { FormInput, Subheading } from "@/app/components";
+import { FormInput, FormFile, Subheading } from "@/app/components";
 
 // Contexts
 import { useTranslationContext } from "@/contexts/TranslationContext";
@@ -29,6 +29,11 @@ const PaymentInformation = () => {
                     label={_t("form.steps.paymentInfo.accountNumber")}
                     placeholder={_t("form.steps.paymentInfo.accountNumber")}
                     vertical
+                />
+                <FormFile
+                    name="details.paymentInformation.qrCode"
+                    label="Payment QR Code"
+                    placeholder="Upload QR Code"
                 />
             </div>
         </section>

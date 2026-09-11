@@ -22,6 +22,7 @@ import useToasts from "@/hooks/useToasts";
 
 // Services
 import { exportInvoice } from "@/services/invoice/client/exportInvoice";
+import { syncInvoiceToCrm } from "@/lib/crmSync";
 
 // Validation
 import { InvoiceSchema } from "@/lib/schemas";
@@ -342,6 +343,14 @@ export const InvoiceContextProvider = ({
       if (result.size > 0) {
         // Toast
         pdfGenerationSuccess();
+
+        syncInvoiceToCrm(data).then((res) => {
+          if (res.success) {
+            console.log("[Invoify] Invoice synced to CRM:", res.invoiceId);
+          } else {
+            console.warn("[Invoify] CRM sync failed (non-blocking):", res.error);
+          }
+        });
       }
     } catch (err) {
       if ((err as Error)?.name === "AbortError") {

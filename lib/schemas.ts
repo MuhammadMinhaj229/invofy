@@ -134,6 +134,7 @@ const PaymentInformationSchema = z.object({
     bankName: fieldValidators.stringMin1,
     accountName: fieldValidators.stringMin1,
     accountNumber: fieldValidators.stringMin1,
+    qrCode: imageDataUrl.optional(),
 });
 
 const DiscountDetailsSchema = z.object({
