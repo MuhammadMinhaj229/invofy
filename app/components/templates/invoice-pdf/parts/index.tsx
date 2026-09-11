@@ -120,21 +120,7 @@ export function Logo({ data, labels, plate = false }: PartCtx & { plate?: boolea
         />
     );
 
-    if (!plate) return img;
-
-    return (
-        <span
-            style={{
-                display: "inline-flex",
-                alignItems: "center",
-                backgroundColor: "#ffffff",
-                borderRadius: 6,
-                padding: "6px 8px",
-            }}
-        >
-            {img}
-        </span>
-    );
+    return img;
 }
 
 /** Sender or receiver address block. */
