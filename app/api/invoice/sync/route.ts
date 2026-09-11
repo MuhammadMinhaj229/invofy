@@ -1,14 +1,19 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-// Server-side admin client to bypass RLS
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
 export async function POST(req: Request) {
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+        console.error("Missing Supabase credentials for CRM sync.");
+        return NextResponse.json({ success: false, error: "Missing SUPABASE_SERVICE_ROLE_KEY in environment variables." }, { status: 500 });
+    }
+
+    // Server-side admin client to bypass RLS
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
     const data = await req.json();
 
     let contactId: string | null = null;
