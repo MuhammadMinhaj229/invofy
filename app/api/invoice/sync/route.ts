@@ -36,17 +36,17 @@ export async function POST(req: Request) {
     if (!contactId) {
       console.log("No CRM contact matched. Smartly creating a new contact...");
       
-      // Grab ANY contact to get the tenant/account ids (since it's a single business CRM)
-      const { data: existingContact } = await supabase
-          .from("contacts")
+      // Grab ANY profile to get the tenant/account ids (since it's a single business CRM)
+      const { data: profile } = await supabase
+          .from("profiles")
           .select("account_id, user_id")
           .limit(1)
           .maybeSingle();
 
-      if (!existingContact) {
+      if (!profile || !profile.account_id) {
           return NextResponse.json({ success: false, error: "Cannot create contact: No account ownership reference found in CRM." }, { status: 400 });
       }
-      contactData = existingContact;
+      contactData = profile;
 
       const { data: newContact, error: createErr } = await supabase
           .from("contacts")
