@@ -21,10 +21,18 @@ export async function POST(req: Request) {
 
     if (data.receiver.phone) {
       const phone = data.receiver.phone.trim();
+      const normalizedPhone = phone.replace(/\D/g, ""); // Strip all non-digits
+      
+      let orQuery = `phone.eq.${phone},phone.eq.${phone.replace(/\s/g, "")}`;
+      if (normalizedPhone) {
+        orQuery += `,phone_normalized.eq.${normalizedPhone}`;
+      }
+
       const { data: contact } = await supabase
         .from("contacts")
         .select("id, account_id, user_id")
-        .or(`phone.eq.${phone},phone.eq.${phone.replace(/\s/g, "")}`)
+        .or(orQuery)
+        .limit(1)
         .maybeSingle();
 
       if (contact) {
