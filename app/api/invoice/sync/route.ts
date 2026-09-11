@@ -19,9 +19,9 @@ export async function POST(req: Request) {
     let contactId: string | null = null;
     let contactData: { account_id: string; user_id: string } | null = null;
 
-    // Extract safar_customer_id from any field in receiver (e.g. "Mohammed (CUS_SNM-000001)")
-    const receiverStr = JSON.stringify(data.receiver || {});
-    const customerIdMatch = receiverStr.match(/CUS_SNM-\d{6}/);
+    // Smartly extract safar_customer_id from ANYWHERE in the invoice (e.g. custom fields, sender details, or receiver)
+    const entireInvoiceStr = JSON.stringify(data || {});
+    const customerIdMatch = entireInvoiceStr.match(/CUS_SNM-\d{6}/);
     const safarCustomerId = customerIdMatch ? customerIdMatch[0] : null;
 
     if (data.receiver.phone && safarCustomerId) {
