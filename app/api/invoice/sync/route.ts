@@ -1,14 +1,19 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-// Server-side admin client to bypass RLS
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
 export async function POST(req: Request) {
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+        console.error("Missing Supabase credentials for CRM sync.");
+        return NextResponse.json({ success: false, error: "Missing SUPABASE_SERVICE_ROLE_KEY in environment variables." }, { status: 500 });
+    }
+
+    // Server-side admin client to bypass RLS
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
     const data = await req.json();
 
     let contactId: string | null = null;
@@ -31,17 +36,17 @@ export async function POST(req: Request) {
     if (!contactId) {
       console.log("No CRM contact matched. Smartly creating a new contact...");
       
-      // Grab ANY contact to get the tenant/account ids (since it's a single business CRM)
-      const { data: existingContact } = await supabase
-          .from("contacts")
+      // Grab ANY profile to get the tenant/account ids (since it's a single business CRM)
+      const { data: profile } = await supabase
+          .from("profiles")
           .select("account_id, user_id")
           .limit(1)
           .maybeSingle();
 
-      if (!existingContact) {
+      if (!profile || !profile.account_id) {
           return NextResponse.json({ success: false, error: "Cannot create contact: No account ownership reference found in CRM." }, { status: 400 });
       }
-      contactData = existingContact;
+      contactData = profile;
 
       const { data: newContact, error: createErr } = await supabase
           .from("contacts")
