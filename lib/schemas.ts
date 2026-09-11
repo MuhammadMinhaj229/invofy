@@ -203,6 +203,7 @@ const InvoiceDetailsSchema = z.object({
     signature: SignatureSchema.optional(),
     updatedAt: fieldValidators.stringOptional,
     pdfTemplate: z.number(),
+    templateName: fieldValidators.stringOptional,
 });
 
 const InvoiceSchema = z.object({

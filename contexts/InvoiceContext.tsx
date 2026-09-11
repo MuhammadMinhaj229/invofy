@@ -71,6 +71,7 @@ const defaultInvoiceContext = {
   printPdf: () => {},
   previewPdfInTab: () => {},
   saveInvoice: () => {},
+  saveAsTemplate: (templateName: string) => {},
   deleteInvoice: (index: number) => {},
   sendPdfToMail: (email: string): Promise<void> => Promise.resolve(),
   exportInvoiceAs: (exportAs: ExportTypes) => {},
@@ -481,6 +482,43 @@ export const InvoiceContextProvider = ({
     }
   };
 
+  /**
+   * Saves the invoice data as a named template to local storage.
+   */
+  const saveAsTemplate = async (templateName: string) => {
+    if (getValues) {
+      const stored = await readSecure<InvoiceType[]>(SAVED_INVOICES_KEY);
+      const savedInvoices: InvoiceType[] = Array.isArray(stored) ? stored : [];
+
+      const updatedDate = new Date().toLocaleDateString(
+        "en-US",
+        SHORT_DATE_OPTIONS
+      );
+
+      const formValues = getValues();
+      formValues.details.updatedAt = updatedDate;
+      formValues.details.templateName = templateName; // attach the name
+
+      // find by templateName instead of invoiceNumber
+      const existingInvoiceIndex = savedInvoices.findIndex(
+        (invoice: InvoiceType) => {
+          return invoice.details.templateName === templateName;
+        }
+      );
+
+      if (existingInvoiceIndex !== -1) {
+        savedInvoices[existingInvoiceIndex] = formValues;
+        modifiedInvoiceSuccess();
+      } else {
+        savedInvoices.push(formValues);
+        saveInvoiceSuccess();
+      }
+
+      await writeSecure(SAVED_INVOICES_KEY, savedInvoices);
+      setSavedInvoices(savedInvoices);
+    }
+  };
+
   // TODO: Change function name. (deleteInvoiceData maybe?)
   /**
    * Delete an invoice from local storage based on the given index.
@@ -606,11 +644,9 @@ export const InvoiceContextProvider = ({
         onFormSubmit,
         newInvoice,
         generatePdf,
-        removeFinalPdf,
-        downloadPdf,
-        printPdf,
         previewPdfInTab,
         saveInvoice,
+        saveAsTemplate,
         deleteInvoice,
         sendPdfToMail,
         exportInvoiceAs,

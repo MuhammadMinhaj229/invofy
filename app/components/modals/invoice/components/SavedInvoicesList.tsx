@@ -102,14 +102,17 @@ const SavedInvoicesList = ({ setModalState }: SavedInvoicesListProps) => {
                         <CardContent className="flex justify-between">
                             <div>
                                 {/* <FileText /> */}
-                                <p className="font-semibold">
-                                    Invoice #{invoice.details.invoiceNumber}{" "}
+                                <p className="font-semibold text-lg text-primary">
+                                    {invoice.details.templateName ? invoice.details.templateName : `Invoice #${invoice.details.invoiceNumber}`}
+                                </p>
+                                <p className="font-medium text-sm">
+                                    {invoice.details.templateName ? `Based on Invoice #${invoice.details.invoiceNumber}` : ""}
                                 </p>
                                 <small className="text-gray-500">
                                     Updated at: {invoice.details.updatedAt}
                                 </small>
 
-                                <div>
+                                <div className="mt-2 text-sm">
                                     <p>Sender: {invoice.sender.name}</p>
                                     <p>Receiver: {invoice.receiver.name}</p>
                                     <p>

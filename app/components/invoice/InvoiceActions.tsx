@@ -37,10 +37,11 @@ import {
     MoreHorizontal,
     Plus,
     RotateCcw,
+    Save,
 } from "lucide-react";
 
 const InvoiceActions = () => {
-    const { invoicePdfLoading, newInvoice } = useInvoiceContext();
+    const { invoicePdfLoading, newInvoice, saveAsTemplate } = useInvoiceContext();
 
     const { _t } = useTranslationContext();
 
@@ -174,6 +175,21 @@ const InvoiceActions = () => {
                                 History
                             </BaseButton>
                         </InvoiceLoaderModal>
+
+                        <BaseButton
+                            variant="outline"
+                            tooltipLabel="Save this exact layout and details as a reusable template"
+                            disabled={invoicePdfLoading}
+                            onClick={() => {
+                                const name = window.prompt("Enter a Business Name for this Template:");
+                                if (name && name.trim()) {
+                                    saveAsTemplate(name.trim());
+                                }
+                            }}
+                        >
+                            <Save className="h-4 w-4" />
+                            Save as Template
+                        </BaseButton>
 
                         <Popover>
                             <PopoverTrigger asChild>
