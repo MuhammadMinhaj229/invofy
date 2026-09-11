@@ -23,6 +23,7 @@ import useToasts from "@/hooks/useToasts";
 // Services
 import { exportInvoice } from "@/services/invoice/client/exportInvoice";
 import { syncInvoiceToCrm } from "@/lib/crmSync";
+import { toast } from "sonner";
 
 // Validation
 import { InvoiceSchema } from "@/lib/schemas";
@@ -349,6 +350,8 @@ export const InvoiceContextProvider = ({
             console.log("[Invoify] Invoice synced to CRM:", res.invoiceId);
           } else {
             console.warn("[Invoify] CRM sync failed (non-blocking):", res.error);
+            // Show toast error to user so they know Vercel keys are missing or invalid
+            toast.error("CRM Sync Failed", { description: res.error });
           }
         });
       }
