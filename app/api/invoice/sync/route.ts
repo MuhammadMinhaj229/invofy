@@ -19,7 +19,12 @@ export async function POST(req: Request) {
     let contactId: string | null = null;
     let contactData: { account_id: string; user_id: string } | null = null;
 
-    if (data.receiver.phone) {
+    // Extract safar_customer_id from any field in receiver (e.g. "Mohammed (CUS_SNM-000001)")
+    const receiverStr = JSON.stringify(data.receiver || {});
+    const customerIdMatch = receiverStr.match(/CUS_SNM-\d{6}/);
+    const safarCustomerId = customerIdMatch ? customerIdMatch[0] : null;
+
+    if (data.receiver.phone && safarCustomerId) {
       const phone = data.receiver.phone.trim();
       const normalizedPhone = phone.replace(/\D/g, ""); // Strip all non-digits
       
@@ -28,9 +33,11 @@ export async function POST(req: Request) {
         orQuery += `,phone_normalized.eq.${normalizedPhone}`;
       }
 
-      const { data: contact } = await supabase
+      // STRICT VERIFICATION: Must match both safar_customer_id AND phone
+      const { data: contact, error: fetchErr } = await supabase
         .from("contacts")
         .select("id, account_id, user_id")
+        .eq("safar_customer_id", safarCustomerId)
         .or(orQuery)
         .limit(1)
         .maybeSingle();
@@ -38,63 +45,17 @@ export async function POST(req: Request) {
       if (contact) {
         contactId = contact.id;
         contactData = { account_id: contact.account_id, user_id: contact.user_id };
+      } else {
+        return NextResponse.json({ 
+          success: false, 
+          error: "Strict Verification Failed: The provided Customer ID and Phone Number do not match any existing contact." 
+        }, { status: 403 });
       }
-    }
-
-    if (!contactId) {
-      console.log("No CRM contact matched. Smartly creating a new contact...");
-      
-      // Grab ANY profile to get the tenant/account ids (since it's a single business CRM)
-      const { data: profile } = await supabase
-          .from("profiles")
-          .select("account_id, user_id")
-          .limit(1)
-          .maybeSingle();
-
-      if (!profile || !profile.account_id) {
-          return NextResponse.json({ success: false, error: "Cannot create contact: No account ownership reference found in CRM." }, { status: 400 });
-      }
-      contactData = profile;
-
-      const { data: newContact, error: createErr } = await supabase
-          .from("contacts")
-          .insert({
-              name: data.receiver.name || "Unknown Customer",
-              phone: data.receiver.phone || "Unknown Phone",
-              email: data.receiver.email || null,
-              account_id: contactData.account_id,
-              user_id: contactData.user_id
-          })
-          .select("id")
-          .single();
-          
-      if (createErr || !newContact) {
-          return NextResponse.json({ success: false, error: "Failed to smartly create contact: " + (createErr?.message || "Unknown error") }, { status: 400 });
-      }
-      contactId = newContact.id;
-      
-      const { data: notesData } = await supabase
-          .from('contact_notes')
-          .select('note_text')
-          .ilike('note_text', '%Customer ID: CUS_SNM-%')
-          .order('created_at', { ascending: false })
-          .limit(1);
-
-      let nextSeq = 1;
-      if (notesData && notesData.length > 0) {
-          const match = notesData[0].note_text.match(/CUS_SNM-(\d+)/);
-          if (match) {
-              nextSeq = parseInt(match[1], 10) + 1;
-          }
-      }
-      const safarCustomerId = `CUS_SNM-${String(nextSeq).padStart(6, '0')}`;
-      
-      await supabase.from("contact_notes").insert({
-          contact_id: contactId,
-          account_id: contactData.account_id,
-          user_id: contactData.user_id,
-          note_text: `Customer ID: ${safarCustomerId}\nLocation: ${data.receiver.address || 'Unknown'}\nService Interest: Smart Creation from Invoify`
-      });
+    } else {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Strict Verification Failed: Both Customer ID (e.g., CUS_SNM-000001) and Phone Number are strictly required." 
+      }, { status: 400 });
     }
 
     if (!contactData) {
