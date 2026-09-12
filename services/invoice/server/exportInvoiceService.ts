@@ -7,6 +7,7 @@ import { AsyncParser } from "@json2csv/node";
 import { Builder } from "xml2js";
 
 // Validation
+import { z } from "zod";
 import { InvoiceSchema } from "@/lib/schemas";
 import { parseJsonBody } from "@/lib/server/validateRequest";
 
@@ -23,12 +24,11 @@ export async function exportInvoiceService(req: NextRequest) {
     const format = req.nextUrl.searchParams.get("format");
 
     /*
-     * The parsed body is handed to xml2js and json2csv, both of which walk the
-     * whole structure. Validating first means they only ever see an
-     * invoice-shaped object, rather than arbitrary deeply-nested JSON.
-     * We use deepPartial() so that users can export incomplete invoices.
+     * We just validate the request body size here using parseJsonBody.
+     * We use z.any() because users must be able to export incomplete invoices 
+     * where fields might be empty strings ("") which would fail the strict InvoiceSchema.
      */
-    const parsed = await parseJsonBody(req, InvoiceSchema.deepPartial());
+    const parsed = await parseJsonBody(req, z.any());
     if (!parsed.ok) return parsed.response;
 
     const body = parsed.data;
