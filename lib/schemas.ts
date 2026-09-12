@@ -207,6 +207,7 @@ const InvoiceDetailsSchema = z.object({
 });
 
 const InvoiceSchema = z.object({
+    id: z.string().optional(),
     sender: InvoiceSenderSchema,
     receiver: InvoiceReceiverSchema,
     details: InvoiceDetailsSchema,

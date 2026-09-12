@@ -122,11 +122,13 @@ export const InvoiceContextProvider = ({
 
   useEffect(() => {
     let active = true;
-    // Encrypted at rest, so this is a promise now. The guard keeps a late
-    // resolve from writing into an unmounted provider.
-    readSecure<InvoiceType[]>(SAVED_INVOICES_KEY).then((saved) => {
-      if (active) setSavedInvoices(Array.isArray(saved) ? saved : []);
-    });
+    fetch('/api/templates')
+      .then(res => res.json())
+      .then(saved => {
+        if (active) setSavedInvoices(Array.isArray(saved) ? saved : []);
+      })
+      .catch(e => console.error("Error loading templates:", e));
+
     return () => {
       active = false;
     };
@@ -487,9 +489,6 @@ export const InvoiceContextProvider = ({
    */
   const saveAsTemplate = async (templateName: string) => {
     if (getValues) {
-      const stored = await readSecure<InvoiceType[]>(SAVED_INVOICES_KEY);
-      const savedInvoices: InvoiceType[] = Array.isArray(stored) ? stored : [];
-
       const updatedDate = new Date().toLocaleDateString(
         "en-US",
         SHORT_DATE_OPTIONS
@@ -497,41 +496,49 @@ export const InvoiceContextProvider = ({
 
       const formValues = getValues();
       formValues.details.updatedAt = updatedDate;
-      formValues.details.templateName = templateName; // attach the name
+      formValues.details.templateName = templateName;
 
-      // find by templateName instead of invoiceNumber
-      const existingInvoiceIndex = savedInvoices.findIndex(
-        (invoice: InvoiceType) => {
-          return invoice.details.templateName === templateName;
+      try {
+        const res = await fetch('/api/templates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formValues)
+        });
+        if (res.ok) {
+          saveInvoiceSuccess();
+          const saved = await fetch('/api/templates').then(r => r.json());
+          setSavedInvoices(Array.isArray(saved) ? saved : []);
+        } else {
+          console.error("Failed to save template");
         }
-      );
-
-      if (existingInvoiceIndex !== -1) {
-        savedInvoices[existingInvoiceIndex] = formValues;
-        modifiedInvoiceSuccess();
-      } else {
-        savedInvoices.push(formValues);
-        saveInvoiceSuccess();
+      } catch (e) {
+        console.error(e);
       }
-
-      await writeSecure(SAVED_INVOICES_KEY, savedInvoices);
-      setSavedInvoices(savedInvoices);
     }
   };
 
-  // TODO: Change function name. (deleteInvoiceData maybe?)
   /**
    * Delete an invoice from local storage based on the given index.
    *
    * @param {number} index - The index of the invoice to be deleted.
    */
-  const deleteInvoice = (index: number) => {
+  const deleteInvoice = async (index: number) => {
     if (index >= 0 && index < savedInvoices.length) {
+      const invoiceToDelete = savedInvoices[index];
+      
+      if (invoiceToDelete.id) {
+        try {
+          await fetch(`/api/templates?id=${invoiceToDelete.id}`, {
+            method: 'DELETE'
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
       const updatedInvoices = [...savedInvoices];
       updatedInvoices.splice(index, 1);
       setSavedInvoices(updatedInvoices);
-
-      void writeSecure(SAVED_INVOICES_KEY, updatedInvoices);
     }
   };
 

@@ -165,17 +165,6 @@ const InvoiceActions = () => {
                             )}
                         </BaseButton>
 
-                        <InvoiceLoaderModal>
-                            <BaseButton
-                                variant="outline"
-                                tooltipLabel="View Invoice History"
-                                disabled={invoicePdfLoading}
-                            >
-                                <FolderUp className="h-4 w-4" />
-                                History
-                            </BaseButton>
-                        </InvoiceLoaderModal>
-
                         <BaseButton
                             variant="outline"
                             tooltipLabel="Save this exact layout and details as a reusable template"
