@@ -29,8 +29,9 @@ export async function POST(req: Request) {
       const normalizedPhone = phone.replace(/\D/g, ""); // Strip all non-digits
       
       let orQuery = `phone.eq.${phone},phone.eq.${phone.replace(/\s/g, "")}`;
+      // Fallback: Check if the database phone contains the normalized numeric string (ignoring + or spaces)
       if (normalizedPhone) {
-        orQuery += `,phone_normalized.eq.${normalizedPhone}`;
+        orQuery += `,phone.ilike.%${normalizedPhone}%`;
       }
 
       // STRICT VERIFICATION: Must match both safar_customer_id AND phone
@@ -41,6 +42,14 @@ export async function POST(req: Request) {
         .or(orQuery)
         .limit(1)
         .maybeSingle();
+
+      if (fetchErr) {
+        console.error("[CRM Sync API] Contact fetch error:", fetchErr);
+        return NextResponse.json({ 
+          success: false, 
+          error: "Database error during strict verification: " + fetchErr.message 
+        }, { status: 500 });
+      }
 
       if (contact) {
         contactId = contact.id;
