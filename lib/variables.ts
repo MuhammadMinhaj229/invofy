@@ -242,6 +242,7 @@ export const FORM_DEFAULT_VALUES = {
     },
     additionalNotes: "",
     paymentTerms: "",
+    paymentLink: "",
     totalAmountInWords: "",
     pdfTemplate: 1,
     // `as const` so fontId/density keep their literal types and satisfy the
@@ -327,6 +328,7 @@ export const FORM_FILL_VALUES = {
     },
     additionalNotes: "Thank you for your business",
     paymentTerms: "Net 30",
+    paymentLink: "https://safar-manzil.com/pay",
     signature: {
       data: "",
     },

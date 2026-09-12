@@ -3,6 +3,7 @@
 // Components
 import {
     Charges,
+    FormInput,
     FormTextarea,
     PaymentTermPresets,
     SignatureModal,
@@ -31,6 +32,12 @@ const InvoiceSummary = () => {
                         name="details.additionalNotes"
                         label={_t("form.steps.summary.additionalNotes")}
                         placeholder="Your additional notes"
+                    />
+                    
+                    <FormInput
+                        name="details.paymentLink"
+                        label="Payment / Additional Link"
+                        placeholder="https://example.com/pay"
                     />
                     <div className="flex flex-col gap-2">
                         <FormTextarea
