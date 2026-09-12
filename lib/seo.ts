@@ -6,7 +6,7 @@ export const ROOTKEYWORDS = [
     "invoice generating",
     "invoice app",
     "invoice generator app",
-    "free invoice generator",
+    "Safar Invoice Generator",
     "invoice template",
     "pdf invoice",
 ];
@@ -53,7 +53,7 @@ export function buildJsonLd(locale: string) {
         applicationCategory: "BusinessApplication",
         operatingSystem: "Any",
         description:
-            "Free invoice generator. Build an invoice from thirteen templates and download it as a PDF.",
+            "Safar Invoice Generator. Build an invoice from thirteen templates and download it as a PDF.",
         inLanguage: locale,
         keywords: ROOTKEYWORDS,
         // Generated on demand by app/[locale]/opengraph-image.tsx, so it cannot

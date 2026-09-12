@@ -28,7 +28,7 @@ type Landing = {
  *
  * Before this, `app/[locale]/page.tsx` was twelve lines that rendered the
  * builder and nothing else: no prose at all, and its only `<h1>` was a form
- * label reading "Invoice". A crawler arriving at a free invoice generator
+ * label reading "Invoice". A crawler arriving at a Safar Invoice Generator
  * found no sentence explaining that that is what it was.
  *
  * A server component on purpose — this is the half of the page that must exist

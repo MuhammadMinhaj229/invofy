@@ -221,13 +221,13 @@
     "changeAppearance": "Change the invoice's appearance"
   },
   "meta": {
-    "title": "Free Invoice Generator | Invoify",
+    "title": "Safar Invoice Generator | Invoify",
     "description": "Create a professional invoice in minutes. Thirteen templates, your own colours and logo, and a PDF you can download or email. Free, no account needed.",
-    "ogTitle": "Free invoice generator",
+    "ogTitle": "Safar Invoice Generator",
     "ogDescription": "Thirteen templates. Fill it in, download the PDF. No account."
   },
   "landing": {
-    "h1": "Free invoice generator",
+    "h1": "Safar Invoice Generator",
     "intro": "Invoify builds a professional invoice in your browser and hands you a PDF. Choose one of thirteen templates, set your accent colour and typeface, add your logo and signature, and download or email the result. Nothing is uploaded to an account, because there are no accounts.",
     "guideH1": "How Invoify works",
     "guideIntro": "A walk through what the invoice generator does and how to use it: the thirteen templates, the things you can change about them, and the three steps from an empty form to a finished PDF.",
