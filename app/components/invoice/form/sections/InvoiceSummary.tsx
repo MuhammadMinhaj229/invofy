@@ -35,9 +35,9 @@ const InvoiceSummary = () => {
                     />
                     
                     <FormInput
-                        name="details.paymentLink"
-                        label="Payment / Additional Link"
-                        placeholder="https://example.com/pay"
+                        name="details.feedbackLink"
+                        label="Feedback Link"
+                        placeholder="https://safar-manzil.com/feedback"
                     />
                     <div className="flex flex-col gap-2">
                         <FormTextarea
