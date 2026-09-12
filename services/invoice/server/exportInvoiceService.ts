@@ -26,8 +26,9 @@ export async function exportInvoiceService(req: NextRequest) {
      * The parsed body is handed to xml2js and json2csv, both of which walk the
      * whole structure. Validating first means they only ever see an
      * invoice-shaped object, rather than arbitrary deeply-nested JSON.
+     * We use deepPartial() so that users can export incomplete invoices.
      */
-    const parsed = await parseJsonBody(req, InvoiceSchema);
+    const parsed = await parseJsonBody(req, InvoiceSchema.deepPartial());
     if (!parsed.ok) return parsed.response;
 
     const body = parsed.data;
