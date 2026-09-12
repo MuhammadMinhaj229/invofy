@@ -24,47 +24,51 @@ export async function POST(req: Request) {
     const customerIdMatch = entireInvoiceStr.match(/CUS_SNM-\d{6}/);
     const safarCustomerId = customerIdMatch ? customerIdMatch[0] : null;
 
-    if (data.receiver.phone && safarCustomerId) {
-      const phone = data.receiver.phone.trim();
-      const normalizedPhone = phone.replace(/\D/g, ""); // Strip all non-digits
-      
-      let orQuery = `phone.eq.${phone},phone.eq.${phone.replace(/\s/g, "")}`;
-      // Fallback: Check if the database phone contains the normalized numeric string (ignoring + or spaces)
-      if (normalizedPhone) {
-        orQuery += `,phone.ilike.%${normalizedPhone}%`;
-      }
+    if (!data.receiver?.phone) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Sync Failed: A Phone Number is strictly required to sync this invoice to the CRM." 
+      }, { status: 400 });
+    }
 
-      // STRICT VERIFICATION: Must match both safar_customer_id AND phone
-      const { data: contact, error: fetchErr } = await supabase
-        .from("contacts")
-        .select("id, account_id, user_id")
-        .eq("safar_customer_id", safarCustomerId)
-        .or(orQuery)
-        .limit(1)
-        .maybeSingle();
+    const phone = data.receiver.phone.trim();
+    const normalizedPhone = phone.replace(/\D/g, ""); // Strip all non-digits
+    
+    // Create flexible phone match query
+    let orQuery = `phone.eq.${phone},phone.eq.${phone.replace(/\s/g, "")}`;
+    if (normalizedPhone) {
+      orQuery += `,phone.ilike.%${normalizedPhone}%`;
+    }
 
-      if (fetchErr) {
-        console.error("[CRM Sync API] Contact fetch error:", fetchErr);
-        return NextResponse.json({ 
-          success: false, 
-          error: "Database error during strict verification: " + fetchErr.message 
-        }, { status: 500 });
-      }
+    // Build the query: If customer ID is provided, use it, otherwise rely on phone.
+    let dbQuery = supabase.from("contacts").select("id, account_id, user_id").limit(1);
+    
+    if (safarCustomerId) {
+       // Search by ID OR Phone if they provided an ID
+       dbQuery = dbQuery.or(`safar_customer_id.eq.${safarCustomerId},${orQuery}`);
+    } else {
+       // Search purely by phone
+       dbQuery = dbQuery.or(orQuery);
+    }
 
-      if (contact) {
-        contactId = contact.id;
-        contactData = { account_id: contact.account_id, user_id: contact.user_id };
-      } else {
-        return NextResponse.json({ 
-          success: false, 
-          error: "Strict Verification Failed: The provided Customer ID and Phone Number do not match any existing contact." 
-        }, { status: 403 });
-      }
+    const { data: contact, error: fetchErr } = await dbQuery.maybeSingle();
+
+    if (fetchErr) {
+      console.error("[CRM Sync API] Contact fetch error:", fetchErr);
+      return NextResponse.json({ 
+        success: false, 
+        error: "Database error during phone verification: " + fetchErr.message 
+      }, { status: 500 });
+    }
+
+    if (contact) {
+      contactId = contact.id;
+      contactData = { account_id: contact.account_id, user_id: contact.user_id };
     } else {
       return NextResponse.json({ 
         success: false, 
-        error: "Strict Verification Failed: Both Customer ID (e.g., CUS_SNM-000001) and Phone Number are strictly required." 
-      }, { status: 400 });
+        error: `Sync Failed: No customer found in the CRM matching phone number ${phone}.` 
+      }, { status: 403 });
     }
 
     if (!contactData) {
