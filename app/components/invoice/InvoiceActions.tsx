@@ -15,7 +15,7 @@ import {
     PdfViewer,
     BaseButton,
     NewInvoiceAlert,
-    InvoiceLoaderModal,
+    ImportJsonButton,
     InvoiceExportModal,
     TemplateGallery,
 } from "@/app/components";
@@ -71,6 +71,11 @@ const InvoiceActions = () => {
      */
     const secondaryActions = (
         <div className="flex flex-col gap-1">
+            <ImportJsonButton 
+                variant="ghost" 
+                className="w-full justify-start" 
+            />
+            
             <InvoiceExportModal>
                 <BaseButton
                     variant="ghost"

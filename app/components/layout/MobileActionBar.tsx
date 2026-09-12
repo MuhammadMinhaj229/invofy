@@ -33,7 +33,7 @@ const MobileActionBar = () => {
                             disabled={invoicePdfLoading}
                         >
                             <FolderUp className="h-4 w-4" />
-                            History
+                            Templates
                         </BaseButton>
                     </InvoiceLoaderModal>
 
