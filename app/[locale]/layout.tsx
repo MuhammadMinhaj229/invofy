@@ -52,10 +52,10 @@ export async function generateMetadata(props: {
     const messages = await getMessages(locale);
     const meta = (messages as Record<string, Record<string, string>>)?.meta ?? {};
 
-    const title = meta.title ?? "Invoify | Free Invoice Generator";
+    const title = meta.title ?? "Invoify | Safar Invoice Generator";
     const description =
         meta.description ??
-        "Create invoices effortlessly with Invoify, the free invoice generator. Try it now!";
+        "Create invoices effortlessly with Invoify, the Safar Invoice Generator. Try it now!";
 
     return {
         // Resolves every relative URL below, including the generated OG image.
@@ -82,8 +82,8 @@ export async function generateMetadata(props: {
             description,
         },
         authors: {
-            name: "Ali Abbasov",
-            url: "https://aliabb.vercel.app",
+            name: "Alif Growth Media",
+            url: "https://alif-growth.netlify.app/",
         },
         verification: {
             google: GOOGLE_SC_VERIFICATION,
@@ -160,24 +160,6 @@ export default async function LocaleLayout(props: {
                         {/* Vercel analytics */}
                         <Analytics />
 
-                        {/*
-                         * Buy Me a Coffee widget. Loaded via next/script with
-                         * lazyOnload so this third party does not block parsing
-                         * — it was previously a synchronous <script> in <head>.
-                         */}
-                        <Script
-                            src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
-                            strategy="lazyOnload"
-                            data-name="BMC-Widget"
-                            data-cfasync="false"
-                            data-id="aliabb"
-                            data-description="Support me on Buy me a coffee!"
-                            data-message="Thank you for using Invoify"
-                            data-color="#5F7FFF"
-                            data-position="Right"
-                            data-x_margin="18"
-                            data-y_margin="18"
-                        />
                     </Providers>
                 </NextIntlClientProvider>
             </body>

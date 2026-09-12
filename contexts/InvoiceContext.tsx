@@ -71,6 +71,7 @@ const defaultInvoiceContext = {
   printPdf: () => {},
   previewPdfInTab: () => {},
   saveInvoice: () => {},
+  saveAsTemplate: (templateName: string) => {},
   deleteInvoice: (index: number) => {},
   sendPdfToMail: (email: string): Promise<void> => Promise.resolve(),
   exportInvoiceAs: (exportAs: ExportTypes) => {},
@@ -121,11 +122,13 @@ export const InvoiceContextProvider = ({
 
   useEffect(() => {
     let active = true;
-    // Encrypted at rest, so this is a promise now. The guard keeps a late
-    // resolve from writing into an unmounted provider.
-    readSecure<InvoiceType[]>(SAVED_INVOICES_KEY).then((saved) => {
-      if (active) setSavedInvoices(Array.isArray(saved) ? saved : []);
-    });
+    fetch('/api/templates')
+      .then(res => res.json())
+      .then(saved => {
+        if (active) setSavedInvoices(Array.isArray(saved) ? saved : []);
+      })
+      .catch(e => console.error("Error loading templates:", e));
+
     return () => {
       active = false;
     };
@@ -481,19 +484,61 @@ export const InvoiceContextProvider = ({
     }
   };
 
-  // TODO: Change function name. (deleteInvoiceData maybe?)
+  /**
+   * Saves the invoice data as a named template to local storage.
+   */
+  const saveAsTemplate = async (templateName: string) => {
+    if (getValues) {
+      const updatedDate = new Date().toLocaleDateString(
+        "en-US",
+        SHORT_DATE_OPTIONS
+      );
+
+      const formValues = getValues();
+      formValues.details.updatedAt = updatedDate;
+      formValues.details.templateName = templateName;
+
+      try {
+        const res = await fetch('/api/templates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formValues)
+        });
+        if (res.ok) {
+          saveInvoiceSuccess();
+          const saved = await fetch('/api/templates').then(r => r.json());
+          setSavedInvoices(Array.isArray(saved) ? saved : []);
+        } else {
+          console.error("Failed to save template");
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
+
   /**
    * Delete an invoice from local storage based on the given index.
    *
    * @param {number} index - The index of the invoice to be deleted.
    */
-  const deleteInvoice = (index: number) => {
+  const deleteInvoice = async (index: number) => {
     if (index >= 0 && index < savedInvoices.length) {
+      const invoiceToDelete = savedInvoices[index];
+      
+      if (invoiceToDelete.id) {
+        try {
+          await fetch(`/api/templates?id=${invoiceToDelete.id}`, {
+            method: 'DELETE'
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
       const updatedInvoices = [...savedInvoices];
       updatedInvoices.splice(index, 1);
       setSavedInvoices(updatedInvoices);
-
-      void writeSecure(SAVED_INVOICES_KEY, updatedInvoices);
     }
   };
 
@@ -611,6 +656,7 @@ export const InvoiceContextProvider = ({
         printPdf,
         previewPdfInTab,
         saveInvoice,
+        saveAsTemplate,
         deleteInvoice,
         sendPdfToMail,
         exportInvoiceAs,

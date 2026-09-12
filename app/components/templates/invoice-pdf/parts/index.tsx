@@ -450,7 +450,7 @@ export function PaymentBlock({ ctx }: { ctx: PartCtx }) {
 export function NotesBlock({ ctx }: { ctx: PartCtx }) {
     const { data, labels, scale, locale } = ctx;
     const { details } = data;
-    if (!details.additionalNotes && !details.paymentTerms) return null;
+    if (!details.additionalNotes && !details.paymentTerms && !details.feedbackLink) return null;
 
     return (
         <div className="space-y-2">
@@ -477,6 +477,20 @@ export function NotesBlock({ ctx }: { ctx: PartCtx }) {
                         className={`${scale.body} whitespace-pre-line text-gray-700`}
                     >
                         {details.additionalNotes}
+                    </p>
+                </div>
+            )}
+            {details.feedbackLink && (
+                <div data-edit-field="details.feedbackLink">
+                    <p
+                        className={`${scale.label} font-semibold uppercase tracking-wider text-gray-500`}
+                    >
+                        Feedback Link
+                    </p>
+                    <p className={`${scale.body} text-gray-700`}>
+                        <a href={details.feedbackLink} className="text-blue-600 underline" target="_blank" rel="noopener noreferrer">
+                            {details.feedbackLink}
+                        </a>
                     </p>
                 </div>
             )}

@@ -78,17 +78,6 @@ const SavedInvoicesList = ({ setModalState }: SavedInvoicesListProps) => {
         }
     };
 
-    /**
-     * Loads a given invoice into the form and generates a pdf by submitting the form.
-     *
-     * @param {InvoiceType} selectedInvoice - The selected invoice
-     */
-    const loadAndGeneratePdf = (selectedInvoice: InvoiceType) => {
-        load(selectedInvoice);
-
-        // Submit form
-        onFormSubmit(selectedInvoice);
-    };
 
     return (
         <>
@@ -101,48 +90,22 @@ const SavedInvoicesList = ({ setModalState }: SavedInvoicesListProps) => {
                     >
                         <CardContent className="flex justify-between">
                             <div>
-                                {/* <FileText /> */}
-                                <p className="font-semibold">
-                                    Invoice #{invoice.details.invoiceNumber}{" "}
+                                <p className="font-semibold text-lg text-primary">
+                                    {invoice.details.templateName ? invoice.details.templateName : `Invoice Template #${invoice.details.invoiceNumber}`}
                                 </p>
                                 <small className="text-gray-500">
                                     Updated at: {invoice.details.updatedAt}
                                 </small>
-
-                                <div>
-                                    <p>Sender: {invoice.sender.name}</p>
-                                    <p>Receiver: {invoice.receiver.name}</p>
-                                    <p>
-                                        Total:{" "}
-                                        <span className="font-semibold">
-                                            {formatNumberWithCommas(
-                                                Number(
-                                                    invoice.details.totalAmount
-                                                )
-                                            )}{" "}
-                                            {invoice.details.currency}
-                                        </span>
-                                    </p>
-                                </div>
                             </div>
 
                             <div className="flex flex-col gap-2">
                                 <BaseButton
-                                    tooltipLabel="Load invoice details into the form"
+                                    tooltipLabel="Load template into the form"
                                     variant="outline"
                                     size="sm"
                                     onClick={() => load(invoice)}
                                 >
-                                    Load
-                                </BaseButton>
-
-                                <BaseButton
-                                    tooltipLabel="Load invoice and generate PDF"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => loadAndGeneratePdf(invoice)}
-                                >
-                                    Load & Generate
+                                    Load Template
                                 </BaseButton>
                                 {/* Remove Invoice Button */}
                                 <BaseButton

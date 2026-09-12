@@ -200,12 +200,15 @@ const InvoiceDetailsSchema = z.object({
     totalAmountInWords: fieldValidators.string,
     additionalNotes: fieldValidators.stringOptional,
     paymentTerms: fieldValidators.stringMin1,
+    feedbackLink: fieldValidators.stringOptional,
     signature: SignatureSchema.optional(),
     updatedAt: fieldValidators.stringOptional,
     pdfTemplate: z.number(),
+    templateName: fieldValidators.stringOptional,
 });
 
 const InvoiceSchema = z.object({
+    id: z.string().optional(),
     sender: InvoiceSenderSchema,
     receiver: InvoiceReceiverSchema,
     details: InvoiceDetailsSchema,
