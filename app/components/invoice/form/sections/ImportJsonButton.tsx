@@ -68,7 +68,7 @@ const ImportJsonButton = ({ setOpen, className, variant = "outline" }: ImportJso
                 onClick={handleClick}
                 className={className || "w-full sm:w-auto"}
             >
-                <Import />
+                <Import className="h-4 w-4" />
                 {_t("actions.importJson")}
             </BaseButton>
         </>
