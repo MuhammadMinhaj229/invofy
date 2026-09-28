@@ -62,6 +62,6 @@ async function testSync() {
     console.log('Test successful, cleaned up.');
   } catch (err) {
     console.error('Test failed:', err);
-  }
+    process.exitCode = 1;
 }
 testSync();
