@@ -15,7 +15,7 @@ import {
     PdfViewer,
     BaseButton,
     NewInvoiceAlert,
-    InvoiceLoaderModal,
+    ImportJsonButton,
     InvoiceExportModal,
     TemplateGallery,
 } from "@/app/components";
@@ -37,10 +37,11 @@ import {
     MoreHorizontal,
     Plus,
     RotateCcw,
+    Save,
 } from "lucide-react";
 
 const InvoiceActions = () => {
-    const { invoicePdfLoading, newInvoice } = useInvoiceContext();
+    const { invoicePdfLoading, newInvoice, saveAsTemplate } = useInvoiceContext();
 
     const { _t } = useTranslationContext();
 
@@ -70,17 +71,11 @@ const InvoiceActions = () => {
      */
     const secondaryActions = (
         <div className="flex flex-col gap-1">
-            <InvoiceLoaderModal>
-                <BaseButton
-                    variant="ghost"
-                    className="w-full justify-start"
-                    disabled={invoicePdfLoading}
-                >
-                    <FolderUp className="h-4 w-4" />
-                    {_t("actions.loadInvoice")}
-                </BaseButton>
-            </InvoiceLoaderModal>
-
+            <ImportJsonButton 
+                variant="ghost" 
+                className="w-full justify-start" 
+            />
+            
             <InvoiceExportModal>
                 <BaseButton
                     variant="ghost"
@@ -173,6 +168,21 @@ const InvoiceActions = () => {
                             ) : (
                                 <Minimize2 className="h-4 w-4" />
                             )}
+                        </BaseButton>
+
+                        <BaseButton
+                            variant="outline"
+                            tooltipLabel="Save this exact layout and details as a reusable template"
+                            disabled={invoicePdfLoading}
+                            onClick={() => {
+                                const name = window.prompt("Enter a Business Name for this Template:");
+                                if (name && name.trim()) {
+                                    saveAsTemplate(name.trim());
+                                }
+                            }}
+                        >
+                            <Save className="h-4 w-4" />
+                            Save as Template
                         </BaseButton>
 
                         <Popover>

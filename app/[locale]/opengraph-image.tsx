@@ -11,7 +11,7 @@ import { getMessages } from "@/i18n/messages";
  * to the site unfurled as a bare URL — and `lib/seo.ts` pointed its JSON-LD
  * `image` at a hashed build artefact that 404s after any rebuild.
  */
-export const alt = "Invoify — free invoice generator";
+export const alt = "Invoify — Safar Invoice Generator";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -22,7 +22,7 @@ export default async function OpengraphImage(props: {
     const messages = await getMessages(locale);
     const meta = (messages as Record<string, Record<string, string>>)?.meta ?? {};
 
-    const title = meta.ogTitle ?? "Free invoice generator";
+    const title = meta.ogTitle ?? "Safar Invoice Generator";
     const description =
         meta.ogDescription ??
         "Thirteen templates. Fill it in, download the PDF. No account.";
