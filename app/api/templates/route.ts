@@ -3,8 +3,13 @@ import { createClient } from "@supabase/supabase-js";
 
 export async function GET() {
     try {
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+        if (!supabaseUrl || !supabaseKey) {
+            return NextResponse.json([]);
+        }
+
         const supabase = createClient(supabaseUrl, supabaseKey);
 
         const { data, error } = await supabase
@@ -14,17 +19,18 @@ export async function GET() {
 
         if (error) {
             console.error("Error fetching templates:", error);
-            return NextResponse.json({ error: error.message }, { status: 500 });
+            return NextResponse.json([]);
         }
 
-        const templates = data.map(item => ({
+        const templates = (data || []).map(item => ({
             ...item.payload,
             id: item.id
         }));
 
         return NextResponse.json(templates);
     } catch (e: any) {
-        return NextResponse.json({ error: e.message }, { status: 500 });
+        console.error("Templates GET route error:", e);
+        return NextResponse.json([]);
     }
 }
 
@@ -32,10 +38,14 @@ export async function POST(req: Request) {
     try {
         const payload = await req.json();
         
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-        const supabase = createClient(supabaseUrl, supabaseKey);
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+        if (!supabaseUrl || !supabaseKey) {
+            return NextResponse.json({ error: "Database configuration missing" }, { status: 503 });
+        }
+
+        const supabase = createClient(supabaseUrl, supabaseKey);
         const templateName = payload.details?.templateName || "Untitled Template";
 
         const { data, error } = await supabase
@@ -64,8 +74,13 @@ export async function DELETE(req: Request) {
         const id = searchParams.get('id');
         if (!id) return NextResponse.json({ error: "No ID provided" }, { status: 400 });
 
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+        if (!supabaseUrl || !supabaseKey) {
+            return NextResponse.json({ error: "Database configuration missing" }, { status: 503 });
+        }
+
         const supabase = createClient(supabaseUrl, supabaseKey);
 
         const { error } = await supabase
