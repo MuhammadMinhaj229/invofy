@@ -8,6 +8,20 @@
 
 ---
 
+## Architecture Flow
+
+```mermaid
+flowchart LR
+    Cashier["Cashier / Mobile Screen"] --> Input["Invoice Generator Form"]
+    Input --> Calculator["Tax & Item Total Calculation Engine"]
+    Calculator --> PDF["Client-Side PDF Document Generation"]
+    Calculator --> DB[("Supabase Ledger (Cash vs. UPI)")]
+    PDF --> Dispatch["WhatsApp Direct Delivery Link"]
+    Dispatch --> Customer["Customer WhatsApp Inbox"]
+```
+
+---
+
 ## Core Capabilities
 
 - **Instant PDF Bill Generation:** Clean, professional invoice templates customized with your store logo, GST/Tax details, and line-item totals.
