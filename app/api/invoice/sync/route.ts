@@ -7,19 +7,19 @@ export async function POST(req: Request) {
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!supabaseUrl || !supabaseServiceKey) {
-        console.error("Missing Supabase credentials for CRM sync.");
-        return NextResponse.json({ success: false, error: "Missing SUPABASE_SERVICE_ROLE_KEY in environment variables." }, { status: 500 });
+        return NextResponse.json({
+            success: false,
+            configured: false,
+            error: "Supabase credentials are unconfigured on this deployment. Configure SUPABASE_SERVICE_ROLE_KEY to enable automated CRM synchronization."
+        }, { status: 200 });
     }
 
-    // Server-side admin client to bypass RLS
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
     const data = await req.json();
 
     let contactId: string | null = null;
     let contactData: { account_id: string; user_id: string } | null = null;
 
-    // Smartly extract safar_customer_id from ANYWHERE in the invoice (e.g. custom fields, sender details, or receiver)
     const entireInvoiceStr = JSON.stringify(data || {});
     const customerIdMatch = entireInvoiceStr.match(/CUS_SNM-\d{6}/);
     const safarCustomerId = customerIdMatch ? customerIdMatch[0] : null;
@@ -32,22 +32,18 @@ export async function POST(req: Request) {
     }
 
     const phone = data.receiver.phone.trim();
-    const normalizedPhone = phone.replace(/\D/g, ""); // Strip all non-digits
+    const normalizedPhone = phone.replace(/\D/g, "");
     
-    // Create flexible phone match query
     let orQuery = `phone.eq.${phone},phone.eq.${phone.replace(/\s/g, "")}`;
     if (normalizedPhone) {
       orQuery += `,phone.ilike.%${normalizedPhone}%`;
     }
 
-    // Build the query: If customer ID is provided, use it, otherwise rely on phone.
     let dbQuery = supabase.from("contacts").select("id, account_id, user_id").limit(1);
     
     if (safarCustomerId) {
-       // Search by ID OR Phone if they provided an ID
        dbQuery = dbQuery.or(`safar_customer_id.eq.${safarCustomerId},${orQuery}`);
     } else {
-       // Search purely by phone
        dbQuery = dbQuery.or(orQuery);
     }
 
@@ -57,7 +53,7 @@ export async function POST(req: Request) {
       console.error("[CRM Sync API] Contact fetch error:", fetchErr);
       return NextResponse.json({ 
         success: false, 
-        error: "Database error during phone verification: " + fetchErr.message 
+        error: "Database verification error: " + fetchErr.message 
       }, { status: 500 });
     }
 
@@ -75,25 +71,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: "Contact data not found or failed to initialize." }, { status: 400 });
     }
 
-    // Derive service code from first line item if it looks like an SNM code
-    const firstItemName = data.details.items?.[0]?.name ?? "";
+    const firstItemName = data.details?.items?.[0]?.name ?? "";
     const serviceCodeMatch = firstItemName.match(/^(SNM-[A-Z]{2}\d{2})/);
     const serviceCode = serviceCodeMatch ? serviceCodeMatch[1] : "N/A";
-    const invoiceDate = data.details.invoiceDate instanceof Date
+    const invoiceDate = data.details?.invoiceDate instanceof Date
         ? (data.details.invoiceDate as any).toISOString().split("T")[0]
-        : (data.details.invoiceDate || new Date().toISOString().split("T")[0]);
+        : (data.details?.invoiceDate || new Date().toISOString().split("T")[0]);
 
-    // Insert structured data into the invoices table
     const { data: inserted, error } = await supabase.from("invoices").insert({
       contact_id: contactId,
       account_id: contactData.account_id,
       user_id: contactData.user_id,
-      invoice_number: data.details.invoiceNumber || 'MANUAL',
+      invoice_number: data.details?.invoiceNumber || 'MANUAL',
       invoice_date: invoiceDate,
-      total_amount: parseFloat(data.details.totalAmount || "0"),
-      currency: data.details.currency || 'INR',
+      total_amount: parseFloat(data.details?.totalAmount || "0"),
+      currency: data.details?.currency || 'INR',
       service_code: serviceCode || 'Custom Service',
-      line_items: data.details.items || [],
+      line_items: data.details?.items || [],
       status: 'PAID'
     }).select("id").single();
 
@@ -102,7 +96,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 
-    console.log("[CRM Sync API] Invoice synced as note:", inserted?.id);
     return NextResponse.json({ success: true, invoiceId: inserted?.id });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

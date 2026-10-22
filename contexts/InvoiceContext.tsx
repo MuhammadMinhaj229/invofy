@@ -122,12 +122,24 @@ export const InvoiceContextProvider = ({
 
   useEffect(() => {
     let active = true;
+    void readSecure<InvoiceType[]>(SAVED_INVOICES_KEY).then((local) => {
+      if (active && Array.isArray(local) && local.length > 0) {
+        setSavedInvoices(local);
+      }
+    });
+
     fetch('/api/templates')
-      .then(res => res.json())
-      .then(saved => {
-        if (active) setSavedInvoices(Array.isArray(saved) ? saved : []);
+      .then((res) => res.json())
+      .then((saved) => {
+        if (active && Array.isArray(saved) && saved.length > 0) {
+          setSavedInvoices((prev) => {
+            const ids = new Set(prev.map((i) => i.details?.invoiceNumber).filter(Boolean));
+            const fresh = saved.filter((i: InvoiceType) => !ids.has(i.details?.invoiceNumber));
+            return [...prev, ...fresh];
+          });
+        }
       })
-      .catch(e => console.error("Error loading templates:", e));
+      .catch((e) => console.error("Error loading templates:", e));
 
     return () => {
       active = false;
