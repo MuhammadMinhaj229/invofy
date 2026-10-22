@@ -1,10 +1,17 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-project.supabase.co";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
+
+export const isSupabaseConfigured = Boolean(
+  process.env.NEXT_PUBLIC_SUPABASE_URL &&
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
+  !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")
+);
 
 /**
- * Browser Supabase client for Invoify → CRM sync.
- * Uses the anon key (RLS enforced). A new instance is created once per module.
+ * Browser Supabase client for Invoify -> CRM sync.
+ * Safely initialized with fallback values to prevent uncaught exceptions
+ * when client bundles evaluate in unconfigured preview environments.
  */
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
