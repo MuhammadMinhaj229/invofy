@@ -4,13 +4,11 @@
 [![Framework](https://img.shields.io/badge/Framework-Next.js_14-black?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org)
 [![Language](https://img.shields.io/badge/Language-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Database](https://img.shields.io/badge/Database-Supabase_PostgreSQL-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
-[![Branding](https://img.shields.io/badge/Powered_by-Alif_Growth_Media-c99b3b?style=flat-square)](https://alif-growth.netlify.app)
-
 **Invofy** is a high-speed, modern digital invoicing and cashflow tracking platform engineered to eliminate paper invoice books and lost counter receipts for local businesses. It allows shop owners, contractors, and service providers to generate polished digital PDF bills in seconds and dispatch them directly to customer WhatsApp chats.
 
 ---
 
-## ⚡ Core Capabilities
+## Core Capabilities
 
 - **Instant PDF Bill Generation:** Clean, professional invoice templates customized with your store logo, GST/Tax details, and line-item totals.
 - **1-Tap WhatsApp Receipt Dispatch:** Sends formatted bills and downloadable PDF links directly to the customer's phone.
@@ -20,7 +18,7 @@
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Framework:** Next.js 14 (App Router & Server Actions)
 - **Language:** TypeScript
@@ -31,7 +29,7 @@
 
 ---
 
-## 💻 Local Development Setup
+## Local Development Setup
 
 ```bash
 # 1. Clone repository
@@ -59,7 +57,7 @@ Navigate to [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## 🚀 How to Deploy to Vercel
+## How to Deploy to Vercel
 
 1. Push your repository to GitHub.
 2. In **Vercel**, select **Add New Project** and pick `invofy`.
@@ -69,5 +67,5 @@ Navigate to [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## 👤 Author & Support
+## Author & Support
 Engineered by **Mohammed Minhaj Mahmood** ([@MuhammadMinhaj229](https://github.com/MuhammadMinhaj229)) as part of the Alif Growth Media software suite.
